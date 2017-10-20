@@ -4,7 +4,7 @@ const config = require('./config.js');
 
 const steps = [
     "Podaj folder docelowy",
-    //"Numery zdjęć do wywołania (po przecinku)"
+    "Numery zdjęć do wywołania (po przecinku)"
 ];
 
 // Gdy folder docelowy nie jest skonfigurowany
@@ -13,12 +13,13 @@ if (config.destFolder === '') {
     process.stdout.write("  >  ");
 }
 
+// Gdy katalog 'do przegrania' nie istnieje to zostaje utworzony
+// Jeśli istnieje dodawany jest stempel czasowy do istniejacego katalogu
+// i tworzony kolejny folder 'do przegrania'
 fs.lstat(config.destFolder + '/do przegrania', function (err, stats) {
     if (err && err.code === 'ENOENT') {
-        // jeśli katalog nie istnieje
         fs.mkdir(config.destFolder + '/do przegrania', function () {});
     } else {
-        // jeśli katalog istnieje
         let timeStamp = Date.now();
         fs.rename(
             config.destFolder + '/do przegrania',
@@ -31,30 +32,19 @@ fs.lstat(config.destFolder + '/do przegrania', function (err, stats) {
     }
 });
 
+process.stdout.write(`\n${steps[1]}:\n`);
+process.stdout.write("  >  ");
 
+let photos = [];
 
-//
-// let photos = [];
-// function goToStep(step) {
-//     process.stdout.write(`\n\n${steps[step]}:\n`);
-//     process.stdout.write("  >  ");
-// }
-//
-//
-// process.stdin.on('data', function(data) {
-//     photos.push(data.toString().trim());
-//
-//     if (photos.length < steps.length) {
-//         goToStep(photos.length);
-//     } else {
-//         process.exit();
-//     }
-// });
-//
-// process.on('exit', function(data) {
-//     process.stdout.write(`\n....\n\nKatalog ze zdjęciami: ${photos[0]}\n`);
-//     process.stdout.write(`\n....\n\nLista zdjęć: ${photos[1]}\n\n...\n`);
-// });
+process.stdin.on('data', function(data) {
+    photos.push(data.toString().trim());
+    process.exit();
+});
+
+process.on('exit', function(data) {
+
+});
 //
 // goToStep(0);
 
