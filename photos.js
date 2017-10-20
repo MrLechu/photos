@@ -16,17 +16,17 @@ if (config.destFolder === '') {
 // Gdy katalog 'do przegrania' nie istnieje to zostaje utworzony
 // Jeśli istnieje dodawany jest stempel czasowy do istniejacego katalogu
 // i tworzony kolejny folder 'do przegrania'
-fs.lstat(config.destFolder + '/do przegrania', function (err, stats) {
+fs.lstat(config.destFolder, function (err, stats) {
     if (err && err.code === 'ENOENT') {
-        fs.mkdir(config.destFolder + '/do przegrania', function () {});
+        fs.mkdir(config.destFolder, function () {});
     } else {
         let timeStamp = Date.now();
         fs.rename(
-            config.destFolder + '/do przegrania',
-            config.destFolder + timeStamp + '_do przegrania',
+            config.destFolder,
+            timeStamp + '_do przegrania',
             function (err) {
                 if (err) throw err;
-                fs.mkdir(config.destFolder + '/do przegrania', function () {});
+                fs.mkdir(config.destFolder, function () {});
             }
         );
     }
@@ -35,19 +35,29 @@ fs.lstat(config.destFolder + '/do przegrania', function (err, stats) {
 process.stdout.write(`\n${steps[1]}:\n`);
 process.stdout.write("  >  ");
 
-let photos = [];
+let photos = '';
 
-process.stdin.on('data', function(data) {
-    photos.push(data.toString().trim());
+process.stdin.on('data', function (data) {
+    photos = data.toString().trim();
+
+    let img_nrs = photos.split(',');
+
+    img_nrs.forEach(function (nr) {
+        fs.createReadStream(
+            `${config.srcFolder}/IMG_${nr}.txt`
+        ).pipe(
+            fs.createWriteStream(
+                `${config.destFolder}/IMG_${nr}.txt`
+            )
+        );
+    });
+
     process.exit();
 });
 
-process.on('exit', function(data) {
-
+process.on('exit', function (data) {
+    console.log('Gotowe!');
 });
-//
-// goToStep(0);
-
 
 /**
 * co robi: Zmienia nazwę pliku

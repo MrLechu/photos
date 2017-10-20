@@ -1,5 +1,6 @@
 const config = {
-    destFolder: './tmp/'
+    srcFolder: './from/',
+    destFolder: './do przegrania'
 };
 
 module.exports = config;
