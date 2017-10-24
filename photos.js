@@ -1,6 +1,10 @@
-const fs = require('fs');
-const os = require('os');
 const config = require('./config.js');
+
+const fs = require('fs');
+
+const os = require('os');
+
+const readline = require('readline');
 
 const steps = [
     "Podaj folder docelowy",
@@ -8,10 +12,10 @@ const steps = [
 ];
 
 // Gdy folder docelowy nie jest skonfigurowany
-if (config.destFolder === '') {
-    process.stdout.write(`\n${steps[0]}:\n`);
-    process.stdout.write("  >  ");
-}
+// if (config.destFolder === '') {
+//     process.stdout.write("Podaj folder docelowy: ");
+//     process.stdout.write("  >  ");
+// }
 
 // Gdy katalog 'do przegrania' nie istnieje to zostaje utworzony
 // Jeśli istnieje dodawany jest stempel czasowy do istniejacego katalogu
@@ -32,17 +36,26 @@ fs.lstat(config.destFolder, function (err, stats) {
     }
 });
 
-process.stdout.write(`\n${steps[1]}:\n`);
-process.stdout.write("  >  ");
+let photosNumber = "";
 
-let photos = '';
+let numbers = "";
 
-process.stdin.on('data', function (data) {
-    photos = data.toString().trim();
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
-    let img_nrs = photos.split(',');
 
-    img_nrs.forEach(function (nr) {
+rl.question("\n\nNumery zdjęć do wywołania (po przecinku):\n\n", (files) => {
+
+    photosNumber = files;
+
+    numbers = photosNumber.split(',');
+
+    numbers.forEach(function (nr) {
+
+        nr = nr.trim();
+
         fs.createReadStream(
             `${config.srcFolder}/IMG_${nr}.txt`
         ).pipe(
@@ -52,12 +65,38 @@ process.stdin.on('data', function (data) {
         );
     });
 
-    process.exit();
+    rl.close();
+
 });
 
-process.on('exit', function (data) {
-    console.log('Gotowe!');
+rl.on('close', () => {
+    if (numbers.length === 1) {
+        console.log(`Numer pliku: ${photosNumber}`);
+    } else if (numbers.length > 1) {
+        console.log(`Numery plików: ${photosNumber}`);
+    }
+    console.log(`\n\nGotowe!`);
+
 });
+
+// process.stdin.on('data', function (data) {
+//     photos = data.toString().trim();
+
+//     let img_nrs = photos.split(',');
+
+//     img_nrs.forEach(function (nr) {
+//         fs.createReadStream(
+//             `${config.srcFolder}/IMG_${nr}.txt`
+//         ).pipe(
+//             fs.createWriteStream(
+//                 `${config.destFolder}/IMG_${nr}.txt`
+//             )
+//         );
+//     });
+
+//     process.exit();
+// });
+
 
 /**
 * co robi: Zmienia nazwę pliku
